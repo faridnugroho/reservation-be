@@ -16,6 +16,10 @@ type Config struct {
 	DatabasePort                string
 	DatabaseName                string
 	EnableDatabaseAutomigration bool
+	CloudinaryFolder            string
+	CloudinaryCloudName         string
+	CloudinaryAPIKey            string
+	CLoudinaryAPISecret         string
 }
 
 func LoadConfig() (config *Config) {
@@ -31,6 +35,10 @@ func LoadConfig() (config *Config) {
 	databasePort := os.Getenv("DATABASE_PORT")
 	databaseName := os.Getenv("DATABASE_NAME")
 	enableDatabaseAutomigration, _ := strconv.ParseBool(os.Getenv("ENABLE_DATABASE_AUTOMIGRATION"))
+	cloudinaryFolder := os.Getenv("CLOUDINARY_FOLDER")
+	cloudinaryCloudName := os.Getenv("CLOUDINARY_CLOUD_NAME")
+	cloudinaryAPIKey := os.Getenv("CLOUDINARY_API_KEY")
+	cLoudinaryAPISecret := os.Getenv("CLOUDINARY_API_SECRET")
 
 	return &Config{
 		SecretKey:                   secretKey,
@@ -40,5 +48,9 @@ func LoadConfig() (config *Config) {
 		DatabasePort:                databasePort,
 		DatabaseName:                databaseName,
 		EnableDatabaseAutomigration: enableDatabaseAutomigration,
+		CloudinaryFolder:            cloudinaryFolder,
+		CloudinaryCloudName:         cloudinaryCloudName,
+		CloudinaryAPIKey:            cloudinaryAPIKey,
+		CLoudinaryAPISecret:         cLoudinaryAPISecret,
 	}
 }

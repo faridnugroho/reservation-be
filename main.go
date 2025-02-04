@@ -18,7 +18,7 @@ func InitServer() *gin.Engine {
 	route := gin.Default()
 
 	route.Use(middlewares.CORSMiddleware())
-	route.Use(middlewares.CustomLogger())
+	route.Use(middlewares.Logger())
 	route.Use(gin.Recovery())
 
 	config.Database()

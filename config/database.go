@@ -37,6 +37,7 @@ func Database() *gorm.DB {
 func RunAutoMigration() {
 	err := DB.AutoMigrate(
 		&models.Users{},
+		&models.Carousels{},
 	)
 
 	if err != nil {

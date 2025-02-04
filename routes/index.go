@@ -18,6 +18,7 @@ func SetupRoutes(route *gin.Engine) {
 
 	TestRoute(v1)
 	AuthRoute(v1)
+	BerandaRoute(v1)
 }
 
 func ServiceCheck(r *gin.RouterGroup) {
