@@ -19,6 +19,7 @@ func Auth() gin.HandlerFunc {
 				Message: "No JWT token provided",
 			})
 			c.Abort()
+
 			return
 		}
 
@@ -30,6 +31,7 @@ func Auth() gin.HandlerFunc {
 				Message: "Invalid token format",
 			})
 			c.Abort()
+
 			return
 		}
 
@@ -40,6 +42,7 @@ func Auth() gin.HandlerFunc {
 				Message: "Failed to decode JWT token",
 			})
 			c.Abort()
+
 			return
 		}
 

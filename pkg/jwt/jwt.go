@@ -31,7 +31,7 @@ func VerifyToken(tokenString string) (*jwt.Token, error) {
 
 	if err != nil {
 		err = errors.New("failed to verify token: " + err.Error())
-		return nil, err
+		return token, err
 	}
 	return token, nil
 }
@@ -39,15 +39,11 @@ func VerifyToken(tokenString string) (*jwt.Token, error) {
 func DecodeToken(tokenString string) (jwt.MapClaims, error) {
 	token, err := VerifyToken(tokenString)
 
-	if err != nil {
-		err = errors.New("failed to decode token: " + err.Error())
-		return nil, err
-	}
-
 	claims, isOk := token.Claims.(jwt.MapClaims)
-	if isOk && token.Valid {
-		return claims, nil
+	if err != nil || !isOk || !token.Valid {
+		err = errors.New("failed to decode token: " + err.Error())
+		return claims, err
 	}
 
-	return nil, fmt.Errorf("invalid token")
+	return claims, nil
 }

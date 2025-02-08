@@ -11,5 +11,6 @@ func AuthRoute(route *gin.RouterGroup) {
 	{
 		auth.POST("/register", controllers.Register)
 		auth.POST("/login", controllers.Login)
+		auth.POST("/refresh-token", controllers.RefreshToken)
 	}
 }

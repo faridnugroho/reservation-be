@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -20,6 +21,7 @@ type Config struct {
 	CloudinaryCloudName         string
 	CloudinaryAPIKey            string
 	CLoudinaryAPISecret         string
+	JWTExpirationTime           int64
 }
 
 func LoadConfig() (config *Config) {
@@ -39,6 +41,7 @@ func LoadConfig() (config *Config) {
 	cloudinaryCloudName := os.Getenv("CLOUDINARY_CLOUD_NAME")
 	cloudinaryAPIKey := os.Getenv("CLOUDINARY_API_KEY")
 	cLoudinaryAPISecret := os.Getenv("CLOUDINARY_API_SECRET")
+	JWTExpirationTime := time.Now().Add(time.Second * 20).Unix()
 
 	return &Config{
 		SecretKey:                   secretKey,
@@ -52,5 +55,6 @@ func LoadConfig() (config *Config) {
 		CloudinaryCloudName:         cloudinaryCloudName,
 		CloudinaryAPIKey:            cloudinaryAPIKey,
 		CLoudinaryAPISecret:         cLoudinaryAPISecret,
+		JWTExpirationTime:           JWTExpirationTime,
 	}
 }

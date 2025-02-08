@@ -32,3 +32,14 @@ func (request LoginRequest) Validate() error {
 		validation.Field(&request.Password, validation.Required),
 	)
 }
+
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+func (request RefreshTokenRequest) Validate() error {
+	return validation.ValidateStruct(
+		&request,
+		validation.Field(&request.RefreshToken, validation.Required),
+	)
+}
