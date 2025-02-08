@@ -12,6 +12,7 @@ func BerandaRoute(route *gin.RouterGroup) {
 	{
 		carousel := beranda.Group("/carousel")
 		{
+			carousel.GET("", controllers.GetCarousels)
 			carousel.POST("/upload", controllers.UploadCarousel)
 			carousel.GET("/update-carousel-status/:id", controllers.UpdateCarouselStatus)
 		}

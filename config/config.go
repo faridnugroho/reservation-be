@@ -41,7 +41,7 @@ func LoadConfig() (config *Config) {
 	cloudinaryCloudName := os.Getenv("CLOUDINARY_CLOUD_NAME")
 	cloudinaryAPIKey := os.Getenv("CLOUDINARY_API_KEY")
 	cLoudinaryAPISecret := os.Getenv("CLOUDINARY_API_SECRET")
-	JWTExpirationTime := time.Now().Add(time.Second * 20).Unix()
+	JWTExpirationTime := time.Now().Add(time.Hour * 24).Unix()
 
 	return &Config{
 		SecretKey:                   secretKey,

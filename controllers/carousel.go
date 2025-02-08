@@ -3,7 +3,9 @@ package controllers
 import (
 	"net/http"
 	"reservation/dto"
+	"reservation/pkg/utils"
 	"reservation/service"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -57,7 +59,7 @@ func UploadCarousel(c *gin.Context) {
 		c.JSON(
 			http.StatusBadRequest,
 			dto.Response{
-				Status:  500,
+				Status:  http.StatusBadRequest,
 				Message: "Failed to get file from form",
 				Error:   err.Error(),
 			},
@@ -128,4 +130,36 @@ func UpdateCarouselStatus(c *gin.Context) {
 			Data:    data,
 		},
 	)
+}
+
+func GetCarousels(c *gin.Context) {
+	url := c.Param("url")
+	param := utils.PopulatePaging(c, "status")
+	var preloadFields []string
+
+	var status *bool
+	statusStr := c.Query("status")
+	if statusStr != "" {
+		parsedStatus, err := strconv.ParseBool(statusStr)
+		if err == nil {
+			status = &parsedStatus
+		}
+	}
+
+	data, _, statusCode, err := service.GetCarousels(url, status, param, preloadFields)
+
+	if err != nil {
+		c.JSON(
+			statusCode,
+			dto.Response{
+				Status:  statusCode,
+				Message: "Failed to get data",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	c.JSON(statusCode, data)
 }

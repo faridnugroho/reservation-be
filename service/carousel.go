@@ -2,16 +2,62 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
+	"reservation/dto"
 	"reservation/models"
 	"reservation/pkg/upload"
+	"reservation/pkg/utils"
 	"reservation/repository"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
+
+func GetCarousels(url string, status *bool, param utils.PagingRequest, preloadFields []string) (response utils.PagingResponse, data []models.Carousels, statusCode int, err error) {
+	baseFilter := "deleted_at IS NULL"
+	filter := baseFilter
+	var filterValues []any
+
+	if url != "" {
+		filter += " AND url = ?"
+		filterValues = append(filterValues, url)
+	}
+	if param.Search != "" {
+		filter += " AND (url ILIKE ?)"
+		filterValues = append(filterValues, fmt.Sprintf("%%%s%%", param.Search))
+	}
+	if status != nil {
+		filter += " AND status = ?"
+		filterValues = append(filterValues, *status)
+	}
+
+	data, total, totalFiltered, err := repository.GetCarousels(dto.FindParameter{
+		BaseFilter:   baseFilter,
+		Filter:       filter,
+		FilterValues: filterValues,
+		Limit:        param.Limit,
+		Order:        param.Order,
+		Offset:       param.Offset,
+	}, preloadFields)
+	if err != nil {
+		err = errors.New("failed to get data: " + err.Error())
+		if err == gorm.ErrRecordNotFound {
+			statusCode = http.StatusNotFound
+			return
+		}
+
+		statusCode = http.StatusInternalServerError
+		return
+	}
+
+	response = utils.PopulateResPaging(&param, data, total, totalFiltered)
+	statusCode = http.StatusOK
+
+	return
+}
 
 func UploadCarousel(file *multipart.FileHeader, userID string) (responseURL string, statusCode int, err error) {
 	extension := filepath.Ext(file.Filename)
