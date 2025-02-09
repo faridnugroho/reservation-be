@@ -92,6 +92,64 @@ func UploadCarousel(c *gin.Context) {
 	)
 }
 
+func GetCarousels(c *gin.Context) {
+	url := c.Param("url")
+	param := utils.PopulatePaging(c, "status")
+	var preloadFields []string
+
+	var status *bool
+	statusStr := c.Query("status")
+	if statusStr != "" {
+		parsedStatus, err := strconv.ParseBool(statusStr)
+		if err == nil {
+			status = &parsedStatus
+		}
+	}
+
+	data, _, statusCode, err := service.GetCarousels(url, status, param, preloadFields)
+
+	if err != nil {
+		c.JSON(
+			statusCode,
+			dto.Response{
+				Status:  statusCode,
+				Message: "Failed to get data",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	c.JSON(statusCode, data)
+}
+
+func DeleteCarousel(c *gin.Context) {
+	id := c.Param("id")
+
+	statusCode, err := service.DeleteCarousel(id)
+	if err != nil {
+		c.JSON(
+			statusCode,
+			dto.Response{
+				Status:  statusCode,
+				Message: "Failed to delete data",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	c.JSON(
+		statusCode,
+		dto.Response{
+			Status:  statusCode,
+			Message: "Success to delete data",
+		},
+	)
+}
+
 func UpdateCarouselStatus(c *gin.Context) {
 	id := c.Param("id")
 
@@ -130,36 +188,4 @@ func UpdateCarouselStatus(c *gin.Context) {
 			Data:    data,
 		},
 	)
-}
-
-func GetCarousels(c *gin.Context) {
-	url := c.Param("url")
-	param := utils.PopulatePaging(c, "status")
-	var preloadFields []string
-
-	var status *bool
-	statusStr := c.Query("status")
-	if statusStr != "" {
-		parsedStatus, err := strconv.ParseBool(statusStr)
-		if err == nil {
-			status = &parsedStatus
-		}
-	}
-
-	data, _, statusCode, err := service.GetCarousels(url, status, param, preloadFields)
-
-	if err != nil {
-		c.JSON(
-			statusCode,
-			dto.Response{
-				Status:  statusCode,
-				Message: "Failed to get data",
-				Error:   err.Error(),
-			},
-		)
-
-		return
-	}
-
-	c.JSON(statusCode, data)
 }

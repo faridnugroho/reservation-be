@@ -45,6 +45,12 @@ func GetCarousels(param dto.FindParameter, preloadsFields []string) (responses [
 	return
 }
 
+func DeleteCarousel(data models.Carousels) error {
+	err := config.DB.Delete(&data).Error
+
+	return err
+}
+
 func UpdateCarouselStatus(data models.Carousels) (models.Carousels, error) {
 	err := config.DB.Save(&data).Error
 
