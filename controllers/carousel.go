@@ -5,7 +5,6 @@ import (
 	"reservation/dto"
 	"reservation/pkg/utils"
 	"reservation/service"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -93,20 +92,10 @@ func UploadCarousel(c *gin.Context) {
 }
 
 func GetCarousels(c *gin.Context) {
-	url := c.Param("url")
-	param := utils.PopulatePaging(c, "status")
 	var preloadFields []string
+	param := utils.PopulatePaging(c, "status")
 
-	var status *bool
-	statusStr := c.Query("status")
-	if statusStr != "" {
-		parsedStatus, err := strconv.ParseBool(statusStr)
-		if err == nil {
-			status = &parsedStatus
-		}
-	}
-
-	data, _, statusCode, err := service.GetCarousels(url, status, param, preloadFields)
+	data, _, statusCode, err := service.GetCarousels(param, preloadFields)
 
 	if err != nil {
 		c.JSON(

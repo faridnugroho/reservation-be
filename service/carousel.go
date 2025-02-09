@@ -54,22 +54,18 @@ func UploadCarousel(file *multipart.FileHeader, userID string) (responseURL stri
 	return
 }
 
-func GetCarousels(url string, status *bool, param utils.PagingRequest, preloadFields []string) (response utils.PagingResponse, data []models.Carousels, statusCode int, err error) {
+func GetCarousels(param utils.PagingRequest, preloadFields []string) (response utils.PagingResponse, data []models.Carousels, statusCode int, err error) {
 	baseFilter := "deleted_at IS NULL"
 	filter := baseFilter
 	var filterValues []any
 
-	if url != "" {
-		filter += " AND url = ?"
-		filterValues = append(filterValues, url)
+	if param.Custom != "" {
+		filter += " AND status = ?"
+		filterValues = append(filterValues, param.Custom.(string))
 	}
 	if param.Search != "" {
 		filter += " AND (url ILIKE ?)"
 		filterValues = append(filterValues, fmt.Sprintf("%%%s%%", param.Search))
-	}
-	if status != nil {
-		filter += " AND status = ?"
-		filterValues = append(filterValues, *status)
 	}
 
 	data, total, totalFiltered, err := repository.GetCarousels(dto.FindParameter{
