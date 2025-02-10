@@ -46,7 +46,7 @@ func Register(c *gin.Context) {
 
 	// Check if email has been registered
 	param := utils.PopulatePaging(c, "")
-	_, check, _, _ := service.GetUsers("", request.Email, param, []string{})
+	_, check, _, _ := service.GetUsers("", request.Email, "", param, []string{})
 	if len(check) > 0 {
 		c.JSON(
 			http.StatusBadRequest,
@@ -57,6 +57,20 @@ func Register(c *gin.Context) {
 			},
 		)
 
+		return
+	}
+
+	// Check if phone number has been registered
+	_, checkPhone, _, _ := service.GetUsers("", "", request.No_hp, param, []string{})
+	if len(checkPhone) > 0 {
+		c.JSON(
+			http.StatusBadRequest,
+			dto.Response{
+				Status:  http.StatusBadRequest,
+				Message: "Phone number has been registered",
+				Error:   "",
+			},
+		)
 		return
 	}
 
@@ -115,7 +129,7 @@ func Login(c *gin.Context) {
 	}
 
 	param := utils.PopulatePaging(c, "")
-	_, user, statusCode, _ := service.GetUsers("", request.Email, param, []string{})
+	_, user, statusCode, _ := service.GetUsers("", request.Email, "", param, []string{})
 	if len(user) == 0 {
 		c.JSON(
 			http.StatusNotFound,
