@@ -17,6 +17,7 @@ func CreateUser(request dto.UserRequest) (response models.Users, statusCode int,
 	data := models.Users{
 		Fullname: request.Fullname,
 		Email:    request.Email,
+		No_hp:    request.No_hp,
 		Password: bcrypt.HashPassword(request.Password),
 	}
 

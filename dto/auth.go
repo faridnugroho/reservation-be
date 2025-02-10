@@ -8,6 +8,7 @@ import (
 type RegisterRequest struct {
 	Fullname string `json:"fullname"`
 	Email    string `json:"email"`
+	No_hp    string `json:"no_hp"`
 	Password string `json:"password"`
 }
 
@@ -16,6 +17,7 @@ func (request RegisterRequest) Validate() error {
 		&request,
 		validation.Field(&request.Fullname, validation.Required),
 		validation.Field(&request.Email, validation.Required, is.Email),
+		validation.Field(&request.No_hp, validation.Required),
 		validation.Field(&request.Password, validation.Required),
 	)
 }
