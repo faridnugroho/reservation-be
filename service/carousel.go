@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"mime/multipart"
@@ -11,6 +12,7 @@ import (
 	"reservation/pkg/upload"
 	"reservation/pkg/utils"
 	"reservation/repository"
+	"strings"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -90,6 +92,52 @@ func GetCarousels(param utils.PagingRequest, preloadFields []string) (response u
 	response = utils.PopulateResPaging(&param, data, total, totalFiltered)
 	statusCode = http.StatusOK
 
+	return
+}
+
+func UpdateCarousel(id string, request dto.CarouselRequest) (response models.Carousels, statusCode int, err error) {
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		err = errors.New("failed to parse UUID: " + err.Error())
+		statusCode = http.StatusInternalServerError
+		return
+	}
+
+	data, err := repository.GetCarouselByID(parsedUUID, []string{})
+	if err != nil {
+		err = errors.New("failed to get data: " + err.Error())
+		if strings.Contains(err.Error(), gorm.ErrRecordNotFound.Error()) {
+			statusCode = http.StatusNotFound
+			return
+		}
+
+		statusCode = http.StatusInternalServerError
+		return
+	}
+
+	data.Status = request.Status
+
+	var jsonImage []byte
+	if len(request.Url) > 0 {
+		jsonImage, err = json.Marshal(request.Url)
+		fmt.Println("JSON: ", string(jsonImage))
+		if err != nil {
+			err = errors.New("failed to marshal image: " + err.Error())
+			statusCode = http.StatusInternalServerError
+			return
+		}
+
+		data.Url = string(jsonImage)
+	}
+
+	response, err = repository.UpdateCarousel(data)
+	if err != nil {
+		err = errors.New("failed to update data: " + err.Error())
+		statusCode = http.StatusInternalServerError
+		return
+	}
+
+	statusCode = http.StatusOK
 	return
 }
 

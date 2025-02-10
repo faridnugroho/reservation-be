@@ -113,6 +113,46 @@ func GetCarousels(c *gin.Context) {
 	c.JSON(statusCode, data)
 }
 
+func UpdateCarousel(c *gin.Context) {
+	id := c.Param("id")
+
+	var request dto.CarouselRequest
+	if err := c.Bind(&request); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dto.Response{
+				Status:  http.StatusBadRequest,
+				Message: "Invalid request body",
+				Error:   err.Error(),
+			})
+
+		return
+	}
+
+	data, statusCode, err := service.UpdateCarousel(id, request)
+	if err != nil {
+		c.JSON(
+			statusCode,
+			dto.Response{
+				Status:  statusCode,
+				Message: "Failed to update data",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	c.JSON(
+		statusCode,
+		dto.Response{
+			Status:  statusCode,
+			Message: "Success to update data",
+			Data:    data,
+		},
+	)
+}
+
 func DeleteCarousel(c *gin.Context) {
 	id := c.Param("id")
 
