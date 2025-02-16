@@ -23,14 +23,14 @@ func (request RegisterRequest) Validate() error {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	EmailOrPhone string `json:"emailOrPhone"`
+	Password     string `json:"password"`
 }
 
 func (request LoginRequest) Validate() error {
 	return validation.ValidateStruct(
 		&request,
-		validation.Field(&request.Email, validation.Required, is.Email),
+		validation.Field(&request.EmailOrPhone, validation.Required),
 		validation.Field(&request.Password, validation.Required),
 	)
 }

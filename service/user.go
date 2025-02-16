@@ -32,7 +32,7 @@ func CreateUser(request dto.UserRequest) (response models.Users, statusCode int,
 	return
 }
 
-func GetUsers(fullname, email, no_hp string, param utils.PagingRequest, preloadFields []string) (response utils.PagingResponse, data []models.Users, statusCode int, err error) {
+func GetUsers(fullname, email string, param utils.PagingRequest, preloadFields []string) (response utils.PagingResponse, data []models.Users, statusCode int, err error) {
 	baseFilter := "deleted_at IS NULL"
 	filter := baseFilter
 	var filterValues []any
@@ -42,12 +42,8 @@ func GetUsers(fullname, email, no_hp string, param utils.PagingRequest, preloadF
 		filterValues = append(filterValues, fullname)
 	}
 	if email != "" {
-		filter += " AND email = ?"
-		filterValues = append(filterValues, email)
-	}
-	if no_hp != "" {
-		filter += " AND no_hp = ?"
-		filterValues = append(filterValues, no_hp)
+		filter += " AND (email = ? OR no_hp = ?)"
+		filterValues = append(filterValues, email, email)
 	}
 	if param.Search != "" {
 		filter += " AND (fullname ILIKE ? OR email ILIKE ? OR no_hp ILIKE ?)"
