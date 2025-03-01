@@ -90,7 +90,7 @@ func Register(c *gin.Context) {
 	}
 
 	// send email verification
-	go service.SendEmailVerification(result.ID, request.Email)
+	go service.SendEmailVerification(result.ID, result.Email)
 
 	// Return the response
 	c.JSON(
@@ -235,6 +235,36 @@ func VerifyUser(c *gin.Context) {
 			Status:  statusCode,
 			Message: "Success to verify email",
 			Data:    otp,
+		},
+	)
+}
+
+func ResendEmailVerification(c *gin.Context) {
+	userID := c.Param("id")
+
+	user, statusCode, err := service.GetUserByID(userID, []string{})
+	if err != nil {
+		c.JSON(
+			statusCode,
+			dto.Response{
+				Status:  statusCode,
+				Message: "Failed to get data",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	// send email verification
+	go service.SendEmailVerification(user.ID, user.Email)
+
+	// Return the response
+	c.JSON(
+		statusCode,
+		dto.Response{
+			Status:  statusCode,
+			Message: "Success to resend email verification",
 		},
 	)
 }
