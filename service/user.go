@@ -9,7 +9,9 @@ import (
 	"reservation/pkg/bcrypt"
 	"reservation/pkg/utils"
 	"reservation/repository"
+	"strings"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +19,7 @@ func CreateUser(request dto.UserRequest) (response models.Users, statusCode int,
 	data := models.Users{
 		Fullname: request.Fullname,
 		Email:    request.Email,
-		No_hp:    request.No_hp,
+		No_hp:    request.NoHP,
 		Password: bcrypt.HashPassword(request.Password),
 	}
 
@@ -74,5 +76,28 @@ func GetUsers(fullname, email string, param utils.PagingRequest, preloadFields [
 	response = utils.PopulateResPaging(&param, data, total, totalFiltered)
 	statusCode = http.StatusOK
 
+	return
+}
+
+func GetUserByID(id string, preloadFields []string) (data models.Users, statusCode int, err error) {
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		err = errors.New("failed to parse UUID: " + err.Error())
+		statusCode = http.StatusInternalServerError
+		return
+	}
+	data, err = repository.GetUserByID(parsedUUID, preloadFields)
+	if err != nil {
+		err = errors.New("failed to get data: " + err.Error())
+		if strings.Contains(err.Error(), gorm.ErrRecordNotFound.Error()) {
+			statusCode = http.StatusNotFound
+			return
+		}
+
+		statusCode = http.StatusInternalServerError
+		return
+	}
+
+	statusCode = http.StatusOK
 	return
 }

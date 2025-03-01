@@ -61,7 +61,7 @@ func Register(c *gin.Context) {
 	}
 
 	// Check if phone number has been registered
-	_, checkPhone, _, _ := service.GetUsers("", request.No_hp, param, []string{})
+	_, checkPhone, _, _ := service.GetUsers("", request.NoHP, param, []string{})
 	if len(checkPhone) > 0 {
 		c.JSON(
 			http.StatusBadRequest,
@@ -88,6 +88,9 @@ func Register(c *gin.Context) {
 
 		return
 	}
+
+	// send email verification
+	go service.SendEmailVerification(result.ID, request.Email)
 
 	// Return the response
 	c.JSON(
@@ -182,7 +185,58 @@ func Login(c *gin.Context) {
 			Data:    token,
 		},
 	)
+}
 
+func VerifyUser(c *gin.Context) {
+	var request dto.VerifyEmailRequest
+	if err := c.ShouldBind(&request); err != nil {
+		c.JSON(
+			http.StatusUnprocessableEntity,
+			dto.Response{
+				Status:  http.StatusUnprocessableEntity,
+				Message: "Invalid request body",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	if err := request.Validate(); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dto.Response{
+				Status:  http.StatusBadRequest,
+				Message: "Invalid request value",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	otp, statusCode, err := service.VerifyUser(dto.VerifyEmailRequest(request))
+	if err != nil {
+		c.JSON(
+			statusCode,
+			dto.Response{
+				Status:  statusCode,
+				Message: "Failed to verify email",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	c.JSON(
+		statusCode,
+		dto.Response{
+			Status:  statusCode,
+			Message: "Success to verify email",
+			Data:    otp,
+		},
+	)
 }
 
 func RefreshToken(c *gin.Context) {

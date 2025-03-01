@@ -22,6 +22,11 @@ type Config struct {
 	CloudinaryAPIKey            string
 	CLoudinaryAPISecret         string
 	JWTExpirationTime           int64
+	SmtpHost                    string
+	SmtpSenderName              string
+	SmtpUsername                string
+	SmtpPassword                string
+	SmtpPort                    int
 }
 
 func LoadConfig() (config *Config) {
@@ -42,6 +47,11 @@ func LoadConfig() (config *Config) {
 	cloudinaryAPIKey := os.Getenv("CLOUDINARY_API_KEY")
 	cLoudinaryAPISecret := os.Getenv("CLOUDINARY_API_SECRET")
 	JWTExpirationTime := time.Now().Add(time.Hour * 24).Unix()
+	smtpHost := os.Getenv("SMTP_HOST")
+	smtpSenderName := os.Getenv("SMTP_SENDER_NAME")
+	smtpUsername := os.Getenv("SMTP_USERNAME")
+	smtpPassword := os.Getenv("SMTP_PASSWORD")
+	smtpPort, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
 
 	return &Config{
 		SecretKey:                   secretKey,
@@ -56,5 +66,10 @@ func LoadConfig() (config *Config) {
 		CloudinaryAPIKey:            cloudinaryAPIKey,
 		CLoudinaryAPISecret:         cLoudinaryAPISecret,
 		JWTExpirationTime:           JWTExpirationTime,
+		SmtpHost:                    smtpHost,
+		SmtpSenderName:              smtpSenderName,
+		SmtpUsername:                smtpUsername,
+		SmtpPassword:                smtpPassword,
+		SmtpPort:                    smtpPort,
 	}
 }

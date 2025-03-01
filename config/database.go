@@ -38,6 +38,7 @@ func RunAutoMigration() {
 	err := DB.AutoMigrate(
 		&models.Users{},
 		&models.Carousels{},
+		&models.Otp{},
 	)
 
 	if err != nil {

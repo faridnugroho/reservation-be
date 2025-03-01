@@ -3,6 +3,6 @@ package dto
 type UserRequest struct {
 	Fullname string `json:"fullname"`
 	Email    string `json:"email"`
-	No_hp    string `json:"no_hp"`
+	NoHP     string `json:"noHp"`
 	Password string `json:"password,omitempty"`
 }
