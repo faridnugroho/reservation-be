@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"reservation/config"
 	"reservation/dto"
 	"reservation/models"
+	"reservation/pkg/bcrypt"
 	webToken "reservation/pkg/jwt"
 	"reservation/pkg/smtp"
 	"reservation/pkg/utils"
@@ -89,4 +91,23 @@ func RefreshToken(expiredAccessToken string) (string, error) {
 	}
 
 	return newAccessToken, nil
+}
+
+func ResetPassword(id uuid.UUID, newPassword string) (user models.Users, statusCode int, err error) {
+	idString := id.String()
+	user, statusCode, err = GetUserByID(idString, []string{})
+	if err != nil {
+		return
+	}
+
+	user.Password = bcrypt.HashPassword(newPassword)
+	user, err = repository.UpdateUser(user)
+	if err != nil {
+		log.Println("Failed to update user: " + err.Error())
+		statusCode = http.StatusInternalServerError
+		return
+	}
+
+	return
+
 }

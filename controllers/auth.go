@@ -7,6 +7,7 @@ import (
 	"reservation/pkg/bcrypt"
 	webToken "reservation/pkg/jwt"
 	"reservation/pkg/utils"
+	"reservation/repository"
 	"reservation/service"
 
 	"github.com/gin-gonic/gin"
@@ -240,9 +241,34 @@ func VerifyUser(c *gin.Context) {
 }
 
 func ResendEmailVerification(c *gin.Context) {
-	userID := c.Param("id")
+	var request dto.ResendEmailVerificationRequest
+	if err := c.ShouldBind(&request); err != nil {
+		c.JSON(
+			http.StatusUnprocessableEntity,
+			dto.Response{
+				Status:  http.StatusUnprocessableEntity,
+				Message: "Invalid request body",
+				Error:   err.Error(),
+			},
+		)
 
-	user, statusCode, err := service.GetUserByID(userID, []string{})
+		return
+	}
+
+	if err := request.Validate(); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dto.Response{
+				Status:  http.StatusBadRequest,
+				Message: "Invalid request value",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	user, statusCode, err := service.GetUserByID(request.UserID, []string{})
 	if err != nil {
 		c.JSON(
 			statusCode,
@@ -307,4 +333,137 @@ func RefreshToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"access_token": newAccessToken,
 	})
+}
+
+func SendForgotPasswordRequest(c *gin.Context) {
+	var request dto.SendForgotPasswordRequest
+
+	// Bind the request
+	if err := c.ShouldBind(&request); err != nil {
+		c.JSON(
+			http.StatusUnprocessableEntity,
+			dto.Response{
+				Status:  http.StatusUnprocessableEntity,
+				Message: "Invalid request body",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	// Validate the request
+	if err := request.Validate(); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dto.Response{
+				Status:  http.StatusBadRequest,
+				Message: "Invalid request value",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	user, _, _, err := repository.GetUsers(dto.FindParameter{
+		Filter:       "deleted_at IS NULL AND email = ?",
+		FilterValues: []any{request.Email},
+	}, []string{})
+
+	if err != nil || len(user) == 0 {
+		errorMessage := "Email not found"
+		if err != nil {
+			errorMessage = err.Error()
+		}
+
+		c.JSON(
+			http.StatusNotFound,
+			dto.Response{
+				Status:  http.StatusNotFound,
+				Message: "Failed to get user",
+				Error:   errorMessage,
+			},
+		)
+
+		return
+	}
+
+	// send email verification
+	go service.SendEmailVerification(user[0].ID, user[0].Email)
+
+	// Return the response
+	c.JSON(
+		http.StatusOK,
+		dto.Response{
+			Status:  http.StatusOK,
+			Message: "OTP for password reset has been sent to your email.",
+		},
+	)
+}
+
+func ResetPassword(c *gin.Context) {
+	var request dto.ResetPasswordRequest
+	if err := c.ShouldBind(&request); err != nil {
+		c.JSON(
+			http.StatusUnprocessableEntity,
+			dto.Response{
+				Status:  http.StatusUnprocessableEntity,
+				Message: "Invalid request body",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	if err := request.Validate(); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dto.Response{
+				Status:  http.StatusBadRequest,
+				Message: "Invalid request value",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	param := utils.PopulatePaging(c, "")
+	_, user, _, _ := service.GetUsers("", request.Email, param, []string{})
+	if len(user) == 0 {
+		c.JSON(
+			http.StatusNotFound,
+			dto.Response{
+				Status:  http.StatusNotFound,
+				Message: "Email not found",
+			},
+		)
+
+		return
+	}
+
+	data, statusCode, err := service.ResetPassword(user[0].ID, request.NewPassword)
+	if err != nil {
+		c.JSON(
+			statusCode,
+			dto.Response{
+				Status:  statusCode,
+				Message: "Failed to reset password",
+				Error:   err.Error(),
+			},
+		)
+
+		return
+	}
+
+	c.JSON(
+		statusCode,
+		dto.Response{
+			Status:  statusCode,
+			Message: "Success to reset password",
+			Data:    data,
+		},
+	)
 }

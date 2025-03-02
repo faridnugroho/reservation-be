@@ -16,7 +16,13 @@ func AuthRoute(route *gin.RouterGroup) {
 		emailVerification := auth.Group("/email-verification")
 		{
 			emailVerification.POST("", controllers.VerifyUser)
-			emailVerification.GET("/:id", controllers.ResendEmailVerification)
+			emailVerification.POST("/resend", controllers.ResendEmailVerification)
+		}
+
+		resetPassword := auth.Group("/reset-password")
+		{
+			resetPassword.POST("/send", controllers.SendForgotPasswordRequest)
+			resetPassword.POST("", controllers.ResetPassword)
 		}
 	}
 }

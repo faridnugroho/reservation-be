@@ -35,6 +35,17 @@ func (request LoginRequest) Validate() error {
 	)
 }
 
+type ResendEmailVerificationRequest struct {
+	UserID string `json:"userId"`
+}
+
+func (request ResendEmailVerificationRequest) Validate() error {
+	return validation.ValidateStruct(
+		&request,
+		validation.Field(&request.UserID, validation.Required),
+	)
+}
+
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refreshToken"`
 }
@@ -43,5 +54,29 @@ func (request RefreshTokenRequest) Validate() error {
 	return validation.ValidateStruct(
 		&request,
 		validation.Field(&request.RefreshToken, validation.Required),
+	)
+}
+
+type SendForgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
+func (request SendForgotPasswordRequest) Validate() error {
+	return validation.ValidateStruct(
+		&request,
+		validation.Field(&request.Email, validation.Required, is.Email),
+	)
+}
+
+type ResetPasswordRequest struct {
+	Email       string `json:"email"`
+	NewPassword string `json:"newPassword"`
+}
+
+func (request ResetPasswordRequest) Validate() error {
+	return validation.ValidateStruct(
+		&request,
+		validation.Field(&request.Email, validation.Required, is.Email),
+		validation.Field(&request.NewPassword, validation.Required),
 	)
 }
