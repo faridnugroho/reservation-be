@@ -8,7 +8,7 @@ import (
 )
 
 func BerandaRoute(route *gin.RouterGroup) {
-	beranda := route.Group("/beranda", middlewares.Auth())
+	beranda := route.Group("/beranda", middlewares.Auth)
 	{
 		carousel := beranda.Group("/carousel")
 		{
