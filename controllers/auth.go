@@ -62,7 +62,7 @@ func Register(c *gin.Context) {
 	}
 
 	// Check if phone number has been registered
-	_, checkPhone, _, _ := service.GetUsers("", request.NoHP, param, []string{})
+	_, checkPhone, _, _ := service.GetUsers("", request.Phone, param, []string{})
 	if len(checkPhone) > 0 {
 		c.JSON(
 			http.StatusBadRequest,
