@@ -139,7 +139,7 @@ func Login(c *gin.Context) {
 			http.StatusNotFound,
 			dto.Response{
 				Status:  http.StatusNotFound,
-				Message: "Email/Phone not found",
+				Message: "Email/No.HP not found",
 			},
 		)
 
