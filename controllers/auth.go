@@ -106,6 +106,8 @@ func Register(c *gin.Context) {
 
 func Login(c *gin.Context) {
 	var request dto.LoginRequest
+
+	// Bind the request
 	if err := c.ShouldBind(&request); err != nil {
 		c.JSON(
 			http.StatusUnprocessableEntity,
