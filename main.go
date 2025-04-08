@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"reservation/config"
 	"reservation/middlewares"
 	"reservation/routes"
@@ -11,7 +12,12 @@ import (
 func main() {
 	app := InitServer()
 
-	app.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	app.Run(":" + port)
 }
 
 func InitServer() *gin.Engine {
